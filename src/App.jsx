@@ -477,6 +477,9 @@ const TechTaskChecker = () => {
 
         /* Контейнер drag-n-drop */
         .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
           background: var(--surface-elevated);
           border: 2px dashed var(--border-default);
           border-radius: var(--radius-lg);
