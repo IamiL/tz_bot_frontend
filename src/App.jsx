@@ -372,6 +372,10 @@ const TechTaskChecker = () => {
             <div className="app-container" data-theme={scanComplete ? 'light' : 'dark'}>
                 <style jsx>{`
         /* CSS-переменные дизайн-системы */
+        body{
+            margin:0;
+            box-sizing: border-box;
+        }
         :root {
           /* Базовая палитра */
           --clr-black: #000000;
