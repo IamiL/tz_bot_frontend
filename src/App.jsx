@@ -937,7 +937,7 @@ const TechTaskChecker = () => {
           animation: slideFromRight var(--motion-duration-slow) var(--motion-ease-decelerate) 0.2s forwards;
           display: flex;
           flex-direction: column;
-          overflow-y: scroll;
+          overflow-y: hidden;
         }
 
         .comments-header {
