@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Upload, FileText, AlertCircle, X, Check, Eye } from 'lucide-react';
+import { Upload, AlertCircle, X, Check, Eye } from 'lucide-react';
 
 const TechTaskChecker = () => {
     const [file, setFile] = useState(null);
@@ -14,6 +14,7 @@ const TechTaskChecker = () => {
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
+    const [commentsIncorrectSpellingisOpen, setCommentsIncorrectSpellingisOpen] = useState(false);
 
     // Refs для синхронизации скролла
     const documentRef = useRef(null);
@@ -100,7 +101,7 @@ const TechTaskChecker = () => {
     </div>
   `;
 
-    const mockComments = [
+    const mockCommentsIncorrectSpelling = [
         {
             id: 1,
             title: "Неконкретная формулировка",
@@ -312,7 +313,7 @@ const TechTaskChecker = () => {
     const handleErrorClick = useCallback((e, commentId) => {
         e.stopPropagation();
         if (isMobile) {
-            const comment = mockComments.find(c => c.id === commentId);
+            const comment = mockCommentsIncorrectSpelling.find(c => c.id === commentId);
             const rect = e.target.getBoundingClientRect();
             setTooltipData(comment);
             setTooltipPosition({
@@ -416,6 +417,7 @@ const TechTaskChecker = () => {
         /* Light Theme */
         [data-theme="light"] {
           --surface-canvas: #ffffff;
+            --app-background: #121212;
           --surface-subtle: #f9f9f9;
           --surface-elevated: #ffffff;
           --border-default: #bfbfbf;
@@ -434,6 +436,7 @@ const TechTaskChecker = () => {
         /* Dark Theme */
         [data-theme="dark"] {
           --surface-canvas: #121212;
+            --app-background: #121212;
           --surface-subtle: #1e1e1f;
           --surface-elevated: #1f1f1f;
           --border-default: #2e2e2f;
@@ -456,7 +459,7 @@ const TechTaskChecker = () => {
 
         .app-container {
           min-height: 100vh;
-          background: var(--surface-canvas);
+          background: var(--app-background);
           color: var(--text-primary);
           font-family: 'Inter', system-ui, sans-serif;
           transition: all var(--motion-duration-medium) var(--motion-ease-standard);
@@ -934,7 +937,7 @@ const TechTaskChecker = () => {
           animation: slideFromRight var(--motion-duration-slow) var(--motion-ease-decelerate) 0.2s forwards;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
+          overflow-y: scroll;
         }
 
         .comments-header {
@@ -1386,44 +1389,79 @@ const TechTaskChecker = () => {
                                             aria-label="Найденные ошибки"
                                     >
                                         <h3 className="comments-header">
-                                            <Eye size={24} aria-hidden="true" />
+                                            <Eye
+                                                    size={24}
+                                                    aria-hidden="true"
+                                            />
                                             Найденные ошибки
                                         </h3>
 
-                                        <div
-                                                className="comments-list"
-                                                ref={commentsRef}
-                                                onScroll={handleCommentsScroll}
-                                        >
-                                            {mockComments.map((comment) => (
-                                                    <div
-                                                            key={comment.id}
-                                                            data-comment={comment.id}
-                                                            className={`comment-card ${selectedComment === comment.id ? 'active' : ''} ${hoveredComment === comment.id ? 'hovered' : ''}`}
-                                                            style={{ color: getCommentBorderColor(comment.type) }}
-                                                            onClick={() => scrollToError(comment.id)}
-                                                            onMouseEnter={() => handleCommentHover(comment.id, true)}
-                                                            onMouseLeave={() => handleCommentHover(comment.id, false)}
-                                                            role="button"
-                                                            tabIndex={0}
-                                                            aria-label={`${comment.type === 'error' ? 'Ошибка' : comment.type === 'warning' ? 'Предупреждение' : 'Информация'}: ${comment.title}`}
-                                                            onKeyPress={(e) => {
-                                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                                    e.preventDefault();
-                                                                    scrollToError(comment.id);
-                                                                }
-                                                            }}
-                                                    >
-                                                        <div className="comment-header">
-                                                            <h4 className="comment-title">{comment.title}</h4>
-                                                            <p className="comment-section">{comment.section}</p>
+                                        {/*<div*/}
+                                        {/*        className="accordion-section open"*/}
+                                        {/*        id="incorrectSection"*/}
+                                        {/*>*/}
+
+                                        {/*    <button*/}
+                                        {/*            className="accordion-header"*/}
+                                        {/*            onClick="toggleAccordion('incorrectSection')"*/}
+                                        {/*    >*/}
+                                        {/*        <span>Некорректное написание (18)</span>*/}
+                                        {/*        <span className="accordion-icon">▼</span>*/}
+                                        {/*    </button>*/}
+                                            <div
+                                                    className="comments-list"
+                                                    ref={commentsRef}
+                                                    onScroll={handleCommentsScroll}
+                                            >
+                                                {mockCommentsIncorrectSpelling.map((comment) => (
+                                                        <div
+                                                                key={comment.id}
+                                                                data-comment={comment.id}
+                                                                className={`comment-card ${selectedComment === comment.id ? 'active' : ''} ${hoveredComment === comment.id ? 'hovered' : ''}`}
+                                                                style={{color: getCommentBorderColor(comment.type)}}
+                                                                onClick={() => scrollToError(comment.id)}
+                                                                onMouseEnter={() => handleCommentHover(comment.id, true)}
+                                                                onMouseLeave={() => handleCommentHover(comment.id, false)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                aria-label={`${comment.type === 'error' ? 'Ошибка' : comment.type === 'warning' ? 'Предупреждение' : 'Информация'}: ${comment.title}`}
+                                                                onKeyPress={(e) => {
+                                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                                        e.preventDefault();
+                                                                        scrollToError(comment.id);
+                                                                    }
+                                                                }}
+                                                        >
+                                                            <div className="comment-header">
+                                                                <h4 className="comment-title">{comment.title}</h4>
+                                                                <p className="comment-section">{comment.section}</p>
+                                                            </div>
+                                                            <div className="comment-body">
+                                                                <p className="comment-text">{comment.text}</p>
+                                                            </div>
                                                         </div>
-                                                        <div className="comment-body">
-                                                            <p className="comment-text">{comment.text}</p>
-                                                        </div>
-                                                    </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        {/*</div>*/}
+
+                                        {/*<div*/}
+                                        {/*        className="accordion-section"*/}
+                                        {/*        id="missingSection"*/}
+                                        {/*>*/}
+                                        {/*    <button*/}
+                                        {/*            className="accordion-header"*/}
+                                        {/*            onClick="toggleAccordion('missingSection')"*/}
+                                        {/*    >*/}
+                                        {/*        <span>Отсутствуют (14)</span>*/}
+                                        {/*        <span className="accordion-icon">▼</span>*/}
+                                        {/*    </button>*/}
+                                        {/*    <div*/}
+                                        {/*            className="accordion-content"*/}
+                                        {/*            id="missingComments"*/}
+                                        {/*    >*/}
+
+                                        {/*    </div>*/}
+                                        {/*</div>*/}
                                     </aside>
                             )}
 
