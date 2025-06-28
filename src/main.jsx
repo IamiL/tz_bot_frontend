@@ -1,10 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import TechTaskChecker from "./App.jsx";
+import TechTaskChecker from "./CheckerOld.jsx";
+import App from "./App.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <TechTaskChecker />
+    <App />
   </StrictMode>,
 )
