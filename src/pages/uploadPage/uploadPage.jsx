@@ -90,7 +90,7 @@ function UploadPage({setScanComplete, setDocText, setDocErrors}) {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post('http://localhost:8001/tz', formData, {
+            const response = await axios.post('http://94.228.122.106:8001/tz', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
