@@ -423,7 +423,7 @@ body{
 
 .word-page {
     width: 210mm;
-    min-height: 297mm;
+    /*min-height: 297mm;*/
     padding: 25.4mm;
     background: white;
     box-shadow: var(--elevation-2);
