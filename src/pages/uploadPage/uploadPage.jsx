@@ -3,7 +3,7 @@ import "../../App.css"
 import {AlertCircle, Upload, Check, X} from "lucide-react";
 import axios from "axios";
 
-function UploadPage({setScanComplete, setDocText, setDocErrors}) {
+function UploadPage({setScanComplete, setDocText, setDocErrors, setDocumentErrors, setDownloadUrl}) {
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
@@ -90,7 +90,7 @@ function UploadPage({setScanComplete, setDocText, setDocErrors}) {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post('http://94.228.122.106:8001/tz', formData, {
+            const response = await axios.post('http://94.228.122.106:8001/api/v1/tz', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -98,6 +98,8 @@ function UploadPage({setScanComplete, setDocText, setDocErrors}) {
 
             setDocText(response.data.text);
             setDocErrors(response.data.errors);
+            setDocumentErrors(response.data.errors_missing);
+            setDownloadUrl(response.data.file_url);
 
             setIsScanning(false);
             setScanComplete(true);

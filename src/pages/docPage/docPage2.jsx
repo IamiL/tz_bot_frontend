@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {Eye} from "lucide-react";
+import DocumentErrors from "../../components/DocumentErrors.jsx";
 
-const DocPage2 = ({document, errors}) => {
+const DocPage2 = ({document, errors, documentErrors, downloadUrl}) => {
     // Мок данных - массив ошибок
     // const mockErrors = Array.from({ length: 50 }, (_, i) => ({
     //     id: i + 1,
@@ -67,6 +68,7 @@ const DocPage2 = ({document, errors}) => {
     const [hoveredErrorId, setHoveredErrorId] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
+    const [activeTab, setActiveTab] = useState('text-errors');
 
     const documentRef = useRef(null);
     const errorsRef = useRef(null);
@@ -355,55 +357,145 @@ const DocPage2 = ({document, errors}) => {
 
             {!isMobile && (
             <div className="comments-panel">
-                <h2 className="comments-header">
-                    <Eye
-                        size={24}
-                        aria-hidden="true"
-                    />
-                    Найденные ошибки
-                </h2>
-                <div
-                    className="comments-list"
-                    ref={errorsRef}
-                >
-                    {errors.map((error) => (
-                        <div
-                            key={error.id}
-                            data-error-id={error.id}
-                            onMouseEnter={() => setHoveredErrorId(error.id)}
-                            onMouseLeave={() => setHoveredErrorId(null)}
-                            onClick={() => handleErrorClick(error.id)}
+                {/*<h2 className="comments-header">*/}
+                {/*    <Eye*/}
+                {/*        size={24}*/}
+                {/*        aria-hidden="true"*/}
+                {/*    />*/}
+                {/*    Найденные ошибки*/}
+                {/*</h2>*/}
+                
+                {/* Переключатель между типами ошибок */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    marginBottom: '16px'
+                }}>
+                    <button
+                        onClick={() => setActiveTab('text-errors')}
+                        style={{
+                            padding: '12px 16px',
+                            border: `2px solid ${activeTab === 'text-errors' ? '#d32f2f' : '#e0e0e0'}`,
+                            borderRadius: '8px',
+                            backgroundColor: activeTab === 'text-errors' ? '#d32f2f' : '#ffffff',
+                            color: activeTab === 'text-errors' ? 'white' : '#666',
+                            cursor: 'pointer',
+                            fontWeight: activeTab === 'text-errors' ? 'bold' : 'normal',
+                            transition: 'all 0.3s ease',
+                            fontSize: '14px',
+                            boxShadow: activeTab === 'text-errors' ? '0 2px 4px rgba(211, 47, 47, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}
+                    >
+                        Ошибки в тексте
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('document-errors')}
+                        style={{
+                            padding: '12px 16px',
+                            border: `2px solid ${activeTab === 'document-errors' ? '#d32f2f' : '#e0e0e0'}`,
+                            borderRadius: '8px',
+                            backgroundColor: activeTab === 'document-errors' ? '#d32f2f' : '#ffffff',
+                            color: activeTab === 'document-errors' ? 'white' : '#666',
+                            cursor: 'pointer',
+                            fontWeight: activeTab === 'document-errors' ? 'bold' : 'normal',
+                            transition: 'all 0.3s ease',
+                            fontSize: '14px',
+                            boxShadow: activeTab === 'document-errors' ? '0 2px 4px rgba(211, 47, 47, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}
+                    >
+                        Ошибки документа
+                    </button>
+                </div>
+
+                {/* Ошибки в тексте */}
+                {activeTab === 'text-errors' && (
+                    <div
+                        className="comments-list"
+                        ref={errorsRef}
+                    >
+                        {errors.map((error) => (
+                            <div
+                                key={error.id}
+                                data-error-id={error.id}
+                                onMouseEnter={() => setHoveredErrorId(error.id)}
+                                onMouseLeave={() => setHoveredErrorId(null)}
+                                onClick={() => handleErrorClick(error.id)}
+                                style={{
+                                    padding: '12px',
+                                    marginBottom: '8px',
+                                    border: `2px solid ${hoveredErrorId === error.id ? '#f44336' : '#e0e0e0'}`,
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    backgroundColor: hoveredErrorId === error.id ? '#ffebee' : '#fafafa',
+                                    transition: 'all 0.3s ease',
+                                    transform: hoveredErrorId === error.id ? 'translateX(5px) scale(1.02)' : 'translateX(0) scale(1)',
+                                    boxShadow: hoveredErrorId === error.id
+                                        ? '0 4px 12px rgba(244, 67, 54, 0.3)'
+                                        : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <div style={{
+                                    fontWeight: 'bold',
+                                    color: '#d32f2f',
+                                    marginBottom: '4px'
+                                }}>
+                                    {error.title}
+                                </div>
+                                <div style={{
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    lineHeight: '1.4'
+                                }}>
+                                    {error.description}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Ошибки документа */}
+                {activeTab === 'document-errors' && (
+                    <DocumentErrors errors={documentErrors || []} />
+                )}
+
+                {/* Кнопка скачивания документа */
+                    <div style={{ marginTop: '16px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                        <a
+                            href={downloadUrl}
+                            download
                             style={{
-                                padding: '12px',
-                                marginBottom: '8px',
-                                border: `2px solid ${hoveredErrorId === error.id ? '#f44336' : '#e0e0e0'}`,
+                                display: 'block',
+                                width: '100%',
+                                padding: '12px 16px',
+                                backgroundColor: '#ff9800',
+                                color: 'white',
+                                textDecoration: 'none',
                                 borderRadius: '8px',
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                border: 'none',
                                 cursor: 'pointer',
-                                backgroundColor: hoveredErrorId === error.id ? '#ffebee' : '#fafafa',
                                 transition: 'all 0.3s ease',
-                                transform: hoveredErrorId === error.id ? 'translateX(5px) scale(1.02)' : 'translateX(0) scale(1)',
-                                boxShadow: hoveredErrorId === error.id
-                                    ? '0 4px 12px rgba(244, 67, 54, 0.3)'
-                                    : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                                boxShadow: '0 2px 4px rgba(255, 152, 0, 0.3)',
+                                boxSizing: 'border-box'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = '#f57c00';
+                                e.target.style.transform = 'translateY(-1px)';
+                                e.target.style.boxShadow = '0 4px 8px rgba(255, 152, 0, 0.4)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = '#ff9800';
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = '0 2px 4px rgba(255, 152, 0, 0.3)';
                             }}
                         >
-                            <div style={{
-                                fontWeight: 'bold',
-                                color: '#d32f2f',
-                                marginBottom: '4px'
-                            }}>
-                                {error.title}
-                            </div>
-                            <div style={{
-                                fontSize: '14px',
-                                color: '#666',
-                                lineHeight: '1.4'
-                            }}>
-                                {error.description}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                            Скачать документ
+                        </a>
+                    </div>
+                }
             </div>)}
         </div>
     );
