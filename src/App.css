@@ -414,14 +414,14 @@ body{
 }
 
 /* Word-документ */
-.word-document {
+.document-container {
     max-width: none;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.word-page {
+.document-container .page {
     width: 210mm;
     /*min-height: 297mm;*/
     padding: 25.4mm;
@@ -436,7 +436,7 @@ body{
     page-break-after: always;
 }
 
-[data-theme="dark"] .word-page {
+[data-theme="dark"] .document-container .page {
     background: #fafafa;
 }
 
@@ -471,13 +471,13 @@ body{
     margin-bottom: 1.5em;
 }
 
-.word-heading, .word-document > h1, .word-document > h2, .word-document > h3 {
+.word-heading, .document-container h1, .document-container > h2, .document-container > h3 {
     font-size: 14pt;
     font-weight: bold;
     margin: 1.5em 0 0.5em;
 }
 
-.word-paragraph, .word-document > p {
+.word-paragraph, .document-container p {
     text-indent: 1.25cm;
     margin-bottom: 0.5em;
     text-align: justify;
@@ -760,7 +760,7 @@ body{
         transform: translateY(50px);
     }
 
-    .word-page {
+    .document-container .page {
         width: 100%;
         min-width: 210mm;
         margin: 0 auto;
@@ -793,7 +793,7 @@ body{
         padding: var(--space-4) 0;
     }
 
-    .word-page {
+    .document-container .page {
         box-shadow: none;
         width: 100%;
         min-width: auto;
@@ -827,7 +827,7 @@ body{
         padding: var(--space-4) var(--space-6);
     }
 
-    .word-page {
+    .document-container .page {
         padding: 10mm 8mm;
         font-size: 11pt;
         transform: scale(0.75);

@@ -100,6 +100,7 @@ function UploadPage({setScanComplete, setDocText, setDocErrors, setDocumentError
             setDocErrors(response.data.errors);
             setDocumentErrors(response.data.errors_missing);
             setDownloadUrl(response.data.file_url);
+            setDownloadUrl("https://docs.timuroid.ru/docs/" + response.data.doc_id + ".docx");
 
             setIsScanning(false);
             setScanComplete(true);

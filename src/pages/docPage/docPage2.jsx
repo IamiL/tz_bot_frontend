@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {Eye} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
 
-const DocPage2 = ({document, errors, documentErrors, downloadUrl}) => {
+const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) => {
     // Мок данных - массив ошибок
     // const mockErrors = Array.from({ length: 50 }, (_, i) => ({
     //     id: i + 1,
@@ -76,6 +76,7 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl}) => {
     const isErrorsScrolling = useRef(false);
     const documentScrollTimeout = useRef(null);
     const errorsScrollTimeout = useRef(null);
+    const styleElementRef = useRef(null);
 
     // Функция для получения всех элементов с ошибками в документе
     const getErrorElements = useCallback(() => {
@@ -333,6 +334,36 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl}) => {
         return () => window.removeEventListener('resize', checkDeviceType);
     }, []);
 
+    // Применение CSS стилей от сервера
+    useEffect(() => {
+        if (cssStyles) {
+            // Удаляем предыдущий style элемент, если он есть
+            if (styleElementRef.current) {
+                document.head.removeChild(styleElementRef.current);
+            }
+
+            // Создаем новый style элемент
+            const styleElement = document.createElement('style');
+            styleElement.type = 'text/css';
+            styleElement.innerHTML = cssStyles;
+            
+            // Добавляем уникальный id для идентификации
+            styleElement.id = 'server-document-styles';
+            
+            // Добавляем в head
+            document.head.appendChild(styleElement);
+            styleElementRef.current = styleElement;
+        }
+
+        // Cleanup функция для удаления стилей при размонтировании компонента
+        return () => {
+            if (styleElementRef.current) {
+                document.head.removeChild(styleElementRef.current);
+                styleElementRef.current = null;
+            }
+        };
+    }, [cssStyles]);
+
     return (
         // <div style={{
         //     display: 'flex',
@@ -346,10 +377,9 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl}) => {
                 <div
                     ref={documentRef}
                     className="document-viewport"
+                    dangerouslySetInnerHTML={{ __html: createDocumentHTML() }}
                 >
-                    <div className="word-document">
-                    <div className="word-page" dangerouslySetInnerHTML={{ __html: createDocumentHTML() }}/>
-                    </div>
+                    <div className="word-page" />
                 </div>
             </main>
 
