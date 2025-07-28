@@ -378,9 +378,8 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) =>
                     ref={documentRef}
                     className="document-viewport"
                     dangerouslySetInnerHTML={{ __html: createDocumentHTML() }}
-                >
-                    <div className="word-page" />
-                </div>
+
+                />
             </main>
 
             {/* Блок ошибок */}
