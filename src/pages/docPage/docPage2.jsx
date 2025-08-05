@@ -201,7 +201,7 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) =>
     const handleErrorClick = useCallback((errorId) => {
         if (!documentRef.current) return;
 
-        const errorElement = documentRef.current.querySelector(`[error-id="${errorId}"]`);
+        const errorElement = documentRef.current.querySelector(`[data-error="${errorId}"]`);
         if (errorElement) {
             const containerRect = documentRef.current.getBoundingClientRect();
             const elementRect = errorElement.getBoundingClientRect();

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TZ Bot - Document Analysis Demo</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        /* CSS Variables */
+        :root {
+            /* Color palette */
+            --clr-black: #000000;
+            --clr-gray-900: #231f20;
+            --clr-gray-700: #727272;
+            --clr-gray-300: #bfbfbf;
+            --clr-white: #ffffff;
+            --clr-brand-500: #ff3c00;
+            --clr-brand-400: #f37130;
+            --clr-brand-600: #f0512c;
+            --brand-gradient: linear-gradient(90deg, #ff3c00 0%, #f37130 50%, #f0512c 100%);
+
+            /* Motion */
+            --motion-duration-fast: 150ms;
+            --motion-duration-medium: 300ms;
+            --motion-duration-slow: 500ms;
+            --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+            --motion-ease-decelerate: cubic-bezier(0.0, 0, 0.2, 1);
+            --motion-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+            /* Spacing */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-12: 48px;
+
+            /* Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-cta: 24px;
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --surface-canvas: #ffffff;
+            --app-background: #121212;
+            --surface-subtle: #f9f9f9;
+            --surface-elevated: #ffffff;
+            --border-default: #bfbfbf;
+            --text-primary: #231f20;
+            --text-secondary: #727272;
+            --text-inverse: #ffffff;
+            --brand-primary: #ff3c00;
+            --brand-hover: #f37130;
+            --brand-active: #f0512c;
+            --focus-ring: 0 0 0 3px rgba(255, 60, 0, 0.4);
+            --elevation-1: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --elevation-2: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --surface-canvas: #121212;
+            --app-background: #121212;
+            --surface-subtle: #1e1e1f;
+            --surface-elevated: #1f1f1f;
+            --border-default: #2e2e2f;
+            --text-primary: #f5f5f5;
+            --text-secondary: #bfbfbf;
+            --text-inverse: #000000;
+            --brand-primary: #ff3c00;
+            --brand-hover: #f37130;
+            --brand-active: #f0512c;
+            --focus-ring: 0 0 0 3px rgba(255, 60, 0, 0.6);
+            --elevation-1: 0 2px 4px rgba(0, 0, 0, 0.6);
+            --elevation-2: 0 4px 12px rgba(0, 0, 0, 0.48);
+            --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.64);
+        }
+
+        /* App container */
+        .app-container {
+            min-height: 100vh;
+            background: var(--app-background);
+            color: var(--text-primary);
+            transition: all var(--motion-duration-medium) var(--motion-ease-standard);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+        }
+
+        /* Upload section */
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* Upload container */
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--surface-elevated);
+            border: 2px dashed var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: var(--space-12);
+            text-align: center;
+            width: 100%;
+            transition: all var(--motion-duration-medium) var(--motion-ease-standard);
+            box-shadow: var(--elevation-1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-container:not(.has-file):hover {
+            border-color: var(--brand-primary);
+            background: var(--surface-subtle);
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-2);
+        }
+
+        .upload-container:not(.has-file):hover .upload-icon {
+            color: var(--brand-primary);
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .upload-container.has-file {
+            border-color: var(--brand-primary);
+            border-style: solid;
+            background: var(--surface-subtle);
+            cursor: default;
+        }
+
+        .upload-container.has-file .upload-icon {
+            color: var(--brand-primary);
+            animation: scaleIn var(--motion-duration-medium) var(--motion-ease-decelerate);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Upload icon */
+        .upload-icon {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            transition: all var(--motion-duration-medium) var(--motion-ease-standard);
+            width: 64px;
+            height: 64px;
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: var(--brand-primary);
+            color: var(--text-inverse);
+            border: none;
+            border-radius: var(--radius-cta);
+            padding: var(--space-3) var(--space-6);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--motion-duration-medium) var(--motion-ease-standard);
+            margin-bottom: var(--space-4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:not([disabled]):hover {
+            background: var(--brand-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-2);
+        }
+
+        .btn-primary:not([disabled]):active {
+            background: var(--brand-active);
+            transform: translateY(0);
+        }
+
+        .btn-primary[disabled] {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Upload hint */
+        .upload-hint {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* File info */
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            position: relative;
+            animation: fadeInScale var(--motion-duration-medium) var(--motion-ease-decelerate);
+            max-width: 100%;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 300px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .remove-file-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all var(--motion-duration-fast) var(--motion-ease-standard);
+            margin-left: var(--space-2);
+        }
+
+        .remove-file-btn:hover {
+            background: var(--surface-canvas);
+            color: var(--brand-primary);
+            transform: scale(1.1);
+        }
+
+        /* Error message */
+        .error-message {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            background: rgba(255, 60, 0, 0.1);
+            color: var(--brand-primary);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            animation: slideIn var(--motion-duration-medium) var(--motion-ease-decelerate);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scan button */
+        .scan-button {
+            background: var(--surface-subtle);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-default);
+            border-radius: var(--radius-cta);
+            padding: var(--space-4) var(--space-12);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: all var(--motion-duration-medium) var(--motion-ease-standard);
+            margin-top: var(--space-8);
+            opacity: 0.4;
+            min-width: 280px;
+        }
+
+        .scan-button.active {
+            background: var(--brand-primary);
+            color: var(--text-inverse);
+            border-color: transparent;
+            cursor: pointer;
+            opacity: 1;
+            animation: buttonActivate var(--motion-duration-medium) var(--motion-ease-decelerate);
+        }
+
+        @keyframes buttonActivate {
+            from { transform: scale(0.98); }
+            to { transform: scale(1); }
+        }
+
+        .scan-button.active:not([disabled]):hover {
+            background: var(--brand-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--elevation-2);
+        }
+
+        .scan-button.active:not([disabled]):active {
+            background: var(--brand-active);
+            transform: translateY(0);
+        }
+
+        .scan-button.scanning {
+            pointer-events: none;
+            position: relative;
+        }
+
+        .scan-button.scanning span {
+            vertical-align: middle;
+        }
+
+        .scan-button.scanning .loader {
+            display: inline-block !important;
+        }
+
+        /* Loader */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--text-inverse);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--space-2);
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results layout */
+        .results-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: var(--space-6);
+            width: 100%;
+            max-width: 1600px;
+            height: calc(100vh - 48px);
+            opacity: 0;
+            animation: fadeIn var(--motion-duration-slow) var(--motion-ease-decelerate) forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Document panel */
+        .document-panel {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--elevation-1);
+            transform: translateX(-50px);
+            opacity: 0;
+            animation: slideFromLeft var(--motion-duration-slow) var(--motion-ease-decelerate) forwards;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes slideFromLeft {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Document viewport */
+        .document-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            padding: var(--space-6) 0;
+            scroll-behavior: smooth;
+        }
+
+        [data-theme="dark"] .document-viewport {
+            background: #1a1a1a;
+        }
+
+        /* Word document */
+        .word-document {
+            max-width: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .word-page {
+            width: 210mm;
+            padding: 25.4mm;
+            background: white;
+            box-shadow: var(--elevation-2);
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            position: relative;
+            margin-bottom: var(--space-6);
+            page-break-after: always;
+        }
+
+        [data-theme="dark"] .word-page {
+            background: #fafafa;
+        }
+
+        /* Word content styles */
+        .word-page h1 {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 2em 0 0.5em;
+            text-transform: uppercase;
+        }
+
+        .word-page h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 1.5em 0 0.5em;
+        }
+
+        .word-page p {
+            text-indent: 1.25cm;
+            margin-bottom: 0.5em;
+            text-align: justify;
+        }
+
+        .word-page ul {
+            margin-left: 1.5cm;
+            margin-bottom: 1em;
+        }
+
+        .word-page li {
+            margin-bottom: 0.25em;
+        }
+
+        /* Error highlighting */
+        .error-text {
+            background: rgba(255, 60, 0, 0.15);
+            padding: 2px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid rgba(255, 60, 0, 0.4);
+            cursor: pointer;
+            transition: all var(--motion-duration-fast) var(--motion-ease-standard);
+            position: relative;
+            margin: 0 1px;
+        }
+
+        .error-text:hover,
+        .error-text.hovered {
+            background: rgba(255, 60, 0, 0.25);
+            border-bottom-color: var(--brand-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 60, 0, 0.2);
+        }
+
+        .error-text.active {
+            background: rgba(255, 60, 0, 0.35);
+            border-bottom-color: var(--brand-primary);
+            animation: pulse var(--motion-duration-medium) var(--motion-ease-standard);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Comments panel */
+        .comments-panel {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--elevation-1);
+            transform: translateX(50px);
+            opacity: 0;
+            animation: slideFromRight var(--motion-duration-slow) var(--motion-ease-decelerate) 0.2s forwards;
+            display: flex;
+            flex-direction: column;
+            overflow-y: hidden;
+        }
+
+        @keyframes slideFromRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .comments-header {
+            font-size: 18px;
+            font-weight: 700;
+            padding: var(--space-6) var(--space-6) var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-default);
+            position: sticky;
+            top: 0;
+            background: var(--surface-elevated);
+            z-index: 2;
+        }
+
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+            scroll-behavior: smooth;
+        }
+
+        /* Tab buttons */
+        .tab-button {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #666;
+            cursor: pointer;
+            font-weight: normal;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 8px;
+        }
+
+        .tab-button.active {
+            border-color: #d32f2f;
+            background: #d32f2f;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+        }
+
+        /* Error card */
+        .error-card {
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            transform: translateX(0) scale(1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-card:hover,
+        .error-card.hovered {
+            border-color: #f44336;
+            background: #ffebee;
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .error-card-title {
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 4px;
+        }
+
+        .error-card-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Download button */
+        .download-button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            background: #ff9800;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+            box-sizing: border-box;
+            margin-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 16px;
+        }
+
+        .download-button:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none !important;
+        }
+
+        /* SVG Icons */
+        .icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 1024px) {
+            .results-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+                height: auto;
+            }
+
+            .comments-panel {
+                max-height: 400px;
+                transform: translateY(50px);
+            }
+
+            .word-page {
+                width: 100%;
+                min-width: 210mm;
+                margin: 0 auto;
+            }
+
+            .document-viewport {
+                overflow-x: auto;
+            }
+
+            @keyframes slideFromRight {
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+
+        @media (max-width: 768px) {
+            .results-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .comments-panel {
+                display: none;
+            }
+
+            .document-panel {
+                border-radius: 0;
+                height: 100vh;
+            }
+
+            .document-viewport {
+                padding: var(--space-4) 0;
+            }
+
+            .word-page {
+                box-shadow: none;
+                width: 100%;
+                min-width: auto;
+                max-width: 100%;
+                padding: 15mm 10mm;
+                transform: scale(0.85);
+                transform-origin: top center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app-container {
+                padding: var(--space-4);
+            }
+
+            .upload-container {
+                padding: var(--space-8) var(--space-6);
+            }
+
+            .scan-button {
+                min-width: 100%;
+                padding: var(--space-4) var(--space-6);
+            }
+
+            .word-page {
+                padding: 10mm 8mm;
+                font-size: 11pt;
+                transform: scale(0.75);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" data-theme="dark" id="appContainer">
+        <!-- Upload Page -->
+        <div class="upload-section" id="uploadPage">
+            <div class="upload-container" id="uploadContainer">
+                <!-- Upload Icon (SVG) -->
+                <svg class="upload-icon icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="7,10 12,15 17,10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+
+                <label for="file-upload">
+                    <input id="file-upload" type="file" accept=".doc,.docx" style="display: none;" disabled>
+                    <button class="btn-primary" type="button" onclick="handleFileSelect()" disabled>
+                        Загрузить документ
+                    </button>
+                </label>
+                <p class="upload-hint" id="uploadHint">или перетащите файл сюда</p>
+                <p class="upload-hint" style="font-size: 12px; margin-top: 8px;">
+                    Поддерживаются только файлы .doc и .docx
+                </p>
+
+                <!-- File info (initially hidden) -->
+                <div class="file-info hidden" id="fileInfo">
+                    <!-- Check Icon (SVG) -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-primary);">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    <div class="file-details">
+                        <span class="file-name" id="fileName">Техническое_задание.docx</span>
+                        <span class="file-size" id="fileSize">245.8 KB</span>
+                    </div>
+                    <button class="remove-file-btn" onclick="removeFile()" type="button">
+                        <!-- X Icon (SVG) -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Error message (initially hidden) -->
+                <div class="error-message hidden" id="errorMessage">
+                    <!-- Alert Circle Icon (SVG) -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Пожалуйста, загрузите файл в формате .doc или .docx</span>
+                </div>
+            </div>
+
+            <button class="scan-button" id="scanButton" onclick="startScan()" disabled>
+                Просканировать техническое задание
+            </button>
+        </div>
+
+        <!-- Results Page (initially hidden) -->
+        <div class="results-layout hidden" id="resultsPage">
+            <!-- Document Panel -->
+            <main class="document-panel">
+                <div class="document-viewport" id="documentViewport">
+                    <div class="word-document">
+                        <div class="word-page" id="documentContent">
+                            <h1>ТЕХНИЧЕСКОЕ ЗАДАНИЕ</h1>
+                            <h2>На разработку веб-приложения для анализа документов</h2>
+                            
+                            <p>Настоящее техническое задание определяет требования к разработке веб-приложения для автоматического анализа технических заданий и выявления в них ошибок и недочетов.</p>
+                            
+                            <h2>1. Общие положения</h2>
+                            <p>Веб-приложение должно обеспечивать <span class="error-text" error-id="1">загрузку документов в формате Word</span> и их последующий анализ с выделением проблемных мест в тексте.</p>
+                            
+                            <h2>2. Функциональные требования</h2>
+                            <p>Система должна поддерживать следующие функции:</p>
+                            <ul>
+                                <li>Загрузка файлов через drag-and-drop интерфейс</li>
+                                <li><span class="error-text" error-id="2">Валидация формата загружаемых файлов</span></li>
+                                <li>Отображение результатов анализа в удобном формате</li>
+                                <li>Синхронизация между текстом документа и списком ошибок</li>
+                            </ul>
+                            
+                            <h2>3. Техническая архитектура</h2>
+                            <p>Приложение состоит из двух основных компонентов: <span class="error-text" error-id="3">фронтенд на React</span> и backend API для обработки документов.</p>
+                            
+                            <p>Фронтенд должен обеспечивать <span class="error-text" error-id="4">адаптивную верстку</span> для корректного отображения на различных устройствах.</p>
+                            
+                            <h2>4. Пользовательский интерфейс</h2>
+                            <p>Интерфейс должен включать:</p>
+                            <ul>
+                                <li>Страницу загрузки с областью drag-and-drop</li>
+                                <li>Страницу результатов с двухпанельным интерфейсом</li>
+                                <li><span class="error-text" error-id="5">Панель ошибок с возможностью навигации</span></li>
+                            </ul>
+                            
+                            <p>Все элементы интерфейса должны соответствовать <span class="error-text" error-id="6">современным стандартам UX/UI</span> и обеспечивать интуитивно понятную навигацию.</p>
+                            
+                            <h2>5. Требования к производительности</h2>
+                            <p>Система должна обеспечивать быструю обработку документов и плавную работу пользовательского интерфейса.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Comments Panel -->
+            <div class="comments-panel">
+                <!-- Tab Switcher -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: var(--space-6) var(--space-6) 0;">
+                    <button class="tab-button active" id="textErrorsTab" onclick="switchTab('text-errors')">
+                        Ошибки в тексте
+                    </button>
+                    <button class="tab-button" id="documentErrorsTab" onclick="switchTab('document-errors')">
+                        Ошибки документа
+                    </button>
+                </div>
+
+                <!-- Text Errors List -->
+                <div class="comments-list" id="textErrorsList">
+                    <div class="error-card" data-error-id="1" onclick="scrollToError(1)" onmouseenter="highlightError(1)" onmouseleave="unhighlightError(1)">
+                        <div class="error-card-title">Неточность в техническом требовании</div>
+                        <div class="error-card-description">Указание "формат Word" слишком общее. Следует уточнить поддерживаемые версии (.doc, .docx) и ограничения по размеру файла.</div>
+                    </div>
+                    
+                    <div class="error-card" data-error-id="2" onclick="scrollToError(2)" onmouseenter="highlightError(2)" onmouseleave="unhighlightError(2)">
+                        <div class="error-card-title">Отсутствие детализации</div>
+                        <div class="error-card-description">Требование по валидации файлов нуждается в более подробном описании критериев валидации и обработки ошибок.</div>
+                    </div>
+                    
+                    <div class="error-card" data-error-id="3" onclick="scrollToError(3)" onmouseenter="highlightError(3)" onmouseleave="unhighlightError(3)">
+                        <div class="error-card-title">Неполное техническое описание</div>
+                        <div class="error-card-description">Следует указать версию React, используемые библиотеки и зависимости для обеспечения воспроизводимости сборки.</div>
+                    </div>
+                    
+                    <div class="error-card" data-error-id="4" onclick="scrollToError(4)" onmouseenter="highlightError(4)" onmouseleave="unhighlightError(4)">
+                        <div class="error-card-title">Недостаточная конкретизация</div>
+                        <div class="error-card-description">Требование "адаптивная верстка" должно включать список поддерживаемых разрешений экрана и устройств.</div>
+                    </div>
+                    
+                    <div class="error-card" data-error-id="5" onclick="scrollToError(5)" onmouseenter="highlightError(5)" onmouseleave="unhighlightError(5)">
+                        <div class="error-card-title">Отсутствие спецификации функций</div>
+                        <div class="error-card-description">Необходимо детально описать функциональность панели ошибок: типы навигации, сортировка, фильтрация.</div>
+                    </div>
+                    
+                    <div class="error-card" data-error-id="6" onclick="scrollToError(6)" onmouseenter="highlightError(6)" onmouseleave="unhighlightError(6)">
+                        <div class="error-card-title">Размытые критерии качества</div>
+                        <div class="error-card-description">Ссылка на "современные стандарты UX/UI" требует конкретизации: WCAG, Material Design, Human Interface Guidelines и т.д.</div>
+                    </div>
+                </div>
+
+                <!-- Document Errors List (initially hidden) -->
+                <div class="comments-list hidden" id="documentErrorsList">
+                    <div class="error-card">
+                        <div class="error-card-title">Отсутствует раздел "Предназначение системы"</div>
+                        <div class="error-card-description">В техническом задании должен быть четко определен раздел, описывающий назначение и область применения разрабатываемой системы.</div>
+                    </div>
+                    
+                    <div class="error-card">
+                        <div class="error-card-title">Не указаны ограничения и допущения</div>
+                        <div class="error-card-description">Отсутствует раздел с описанием технических ограничений, предположений и условий, принятых при разработке системы.</div>
+                    </div>
+                    
+                    <div class="error-card">
+                        <div class="error-card-title">Отсутствуют критерии приемки</div>
+                        <div class="error-card-description">В документе не определены четкие критерии и процедуры приемки готового продукта заказчиком.</div>
+                    </div>
+                    
+                    <div class="error-card">
+                        <div class="error-card-title">Не указаны сроки выполнения</div>
+                        <div class="error-card-description">В техническом задании отсутствует календарный план разработки с указанием контрольных точек и финальных сроков.</div>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <div style="padding: 0 var(--space-6) var(--space-6);">
+                    <a href="#" class="download-button" onclick="downloadDocument()">
+                        Скачать документ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hasFile = false;
+        let isScanning = false;
+        let currentTab = 'text-errors';
+
+        // Mock file selection
+        function handleFileSelect() {
+            if (hasFile) return;
+            
+            // Simulate file selection
+            const uploadContainer = document.getElementById('uploadContainer');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadHint = document.getElementById('uploadHint');
+            const scanButton = document.getElementById('scanButton');
+            
+            uploadContainer.classList.add('has-file');
+            fileInfo.classList.remove('hidden');
+            uploadHint.style.display = 'none';
+            scanButton.classList.add('active');
+            scanButton.disabled = false;
+            
+            hasFile = true;
+        }
+
+        // Remove file
+        function removeFile() {
+            const uploadContainer = document.getElementById('uploadContainer');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadHint = document.getElementById('uploadHint');
+            const scanButton = document.getElementById('scanButton');
+            
+            uploadContainer.classList.remove('has-file');
+            fileInfo.classList.add('hidden');
+            uploadHint.style.display = 'block';
+            scanButton.classList.remove('active');
+            scanButton.disabled = true;
+            
+            hasFile = false;
+        }
+
+        // Start scanning process
+        function startScan() {
+            if (!hasFile || isScanning) return;
+            
+            const scanButton = document.getElementById('scanButton');
+            isScanning = true;
+            
+            // Show loading state
+            scanButton.classList.add('scanning');
+            scanButton.innerHTML = `
+                <span class="loader"></span>
+                <span>Сканирование...</span>
+            `;
+            scanButton.disabled = true;
+            
+            // Simulate 3-second delay
+            setTimeout(() => {
+                showResults();
+            }, 3000);
+        }
+
+        // Show results page
+        function showResults() {
+            const appContainer = document.getElementById('appContainer');
+            const uploadPage = document.getElementById('uploadPage');
+            const resultsPage = document.getElementById('resultsPage');
+            
+            // Switch theme to light
+            appContainer.setAttribute('data-theme', 'light');
+            
+            // Hide upload page and show results
+            uploadPage.classList.add('hidden');
+            resultsPage.classList.remove('hidden');
+        }
+
+        // Switch between error tabs
+        function switchTab(tabName) {
+            const textErrorsTab = document.getElementById('textErrorsTab');
+            const documentErrorsTab = document.getElementById('documentErrorsTab');
+            const textErrorsList = document.getElementById('textErrorsList');
+            const documentErrorsList = document.getElementById('documentErrorsList');
+            
+            if (tabName === 'text-errors') {
+                textErrorsTab.classList.add('active');
+                documentErrorsTab.classList.remove('active');
+                textErrorsList.classList.remove('hidden');
+                documentErrorsList.classList.add('hidden');
+            } else {
+                documentErrorsTab.classList.add('active');
+                textErrorsTab.classList.remove('active');
+                documentErrorsList.classList.remove('hidden');
+                textErrorsList.classList.add('hidden');
+            }
+            
+            currentTab = tabName;
+        }
+
+        // Scroll to error in document
+        function scrollToError(errorId) {
+            const errorElement = document.querySelector(`[error-id="${errorId}"]`);
+            if (errorElement) {
+                errorElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Temporarily highlight the error
+                errorElement.classList.add('active');
+                setTimeout(() => {
+                    errorElement.classList.remove('active');
+                }, 1000);
+            }
+        }
+
+        // Highlight error on hover
+        function highlightError(errorId) {
+            const errorElement = document.querySelector(`[error-id="${errorId}"]`);
+            const errorCard = document.querySelector(`[data-error-id="${errorId}"]`);
+            
+            if (errorElement) errorElement.classList.add('hovered');
+            if (errorCard) errorCard.classList.add('hovered');
+        }
+
+        // Remove highlight
+        function unhighlightError(errorId) {
+            const errorElement = document.querySelector(`[error-id="${errorId}"]`);
+            const errorCard = document.querySelector(`[data-error-id="${errorId}"]`);
+            
+            if (errorElement) errorElement.classList.remove('hovered');
+            if (errorCard) errorCard.classList.remove('hovered');
+        }
+
+        // Mock download function
+        function downloadDocument() {
+            alert('Функция скачивания документа (мок)');
+        }
+
+        // Initialize: Simulate clicking "upload" to show file immediately
+        setTimeout(() => {
+            handleFileSelect();
+        }, 500);
+    </script>
+</body>
+</html>
