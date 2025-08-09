@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {Eye} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
 
-const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl}) => {
+const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles}) => {
     // Мок данных - массив ошибок
     // const mockErrors = Array.from({ length: 50 }, (_, i) => ({
     //     id: i + 1,

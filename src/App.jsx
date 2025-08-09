@@ -137,7 +137,7 @@ function App() {
             {!scanComplete ? (
                 <UploadPage setScanComplete={setScanComplete} setDocText={setDocText} setInvalidErrors={setInvalidErrors} setMissingErrors={setMissingErrors} setDownloadUrl={setDownloadUrl} />
             ) : (
-                <DocPage2 document={docText} invalidErrors={invalidErrors} missingErrors={missingErrors} downloadUrl={downloadUrl}/>
+                <DocPage2 document={docText} invalidErrors={invalidErrors} missingErrors={missingErrors} downloadUrl={downloadUrl} cssStyles={''} />
             )}
         </div>
     );
