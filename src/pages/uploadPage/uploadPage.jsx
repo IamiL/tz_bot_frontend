@@ -3,7 +3,7 @@ import "../../App.css"
 import {AlertCircle, Upload, Check, X} from "lucide-react";
 import axios from "axios";
 
-function UploadPage({setScanComplete, setDocText, setDocErrors, setDocumentErrors, setDownloadUrl}) {
+function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingErrors, setDownloadUrl}) {
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
@@ -97,9 +97,8 @@ function UploadPage({setScanComplete, setDocText, setDocErrors, setDocumentError
             });
 
             setDocText(response.data.text);
-            setDocErrors(response.data.errors);
-            setDocumentErrors(response.data.errors_missing);
-            setDownloadUrl(response.data.file_url);
+            setInvalidErrors(response.data.invalid_errors);
+            setMissingErrors(response.data.missing_errors);
             setDownloadUrl("https://docs.timuroid.ru/docs/" + response.data.doc_id + ".docx");
 
             setIsScanning(false);

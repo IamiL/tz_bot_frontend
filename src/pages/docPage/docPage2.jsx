@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {Eye} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
 
-const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) => {
+const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl}) => {
     // Мок данных - массив ошибок
     // const mockErrors = Array.from({ length: 50 }, (_, i) => ({
     //     id: i + 1,
@@ -445,7 +445,7 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) =>
                         className="comments-list"
                         ref={errorsRef}
                     >
-                        {errors.map((error) => (
+                        {invalidErrors.map((error) => (
                             <div
                                 key={error.id}
                                 data-error-id={error.id}
@@ -471,14 +471,15 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) =>
                                     color: '#d32f2f',
                                     marginBottom: '4px'
                                 }}>
-                                    {error.title}
+                                    ошибка {error.error_code} id={error.id}
                                 </div>
                                 <div style={{
                                     fontSize: '14px',
                                     color: '#666',
                                     lineHeight: '1.4'
                                 }}>
-                                    {error.description}
+                                    группа {error.group_id}<br/>
+                                    {error.suggested_fix}
                                 </div>
                             </div>
                         ))}
@@ -487,7 +488,7 @@ const DocPage2 = ({document, errors, documentErrors, downloadUrl, cssStyles}) =>
 
                 {/* Ошибки документа */}
                 {activeTab === 'document-errors' && (
-                    <DocumentErrors errors={documentErrors || []} />
+                    <DocumentErrors errors={missingErrors || []} />
                 )}
 
                 {/* Кнопка скачивания документа */

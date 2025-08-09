@@ -23,14 +23,15 @@ const DocumentErrors = ({ errors }) => {
                         color: '#d32f2f',
                         marginBottom: '4px'
                     }}>
-                        {error.title}
+                        ошибка {error.error_code} id={error.id}
                     </div>
                     <div style={{
                         fontSize: '14px',
                         color: '#666',
                         lineHeight: '1.4'
                     }}>
-                        {error.description}
+                        группа {error.group_id}<br/>
+                        {error.suggested_fix}
                     </div>
                 </div>
             ))}
