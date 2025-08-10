@@ -2,16 +2,20 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthenticatedRoutes from './components/routing/AuthenticatedRoutes.jsx';
 import UnauthenticatedRoutes from './components/routing/UnauthenticatedRoutes.jsx';
-import { useAuthState, useAuthActions } from './store/index.js';
+import useAuthStore from './store/authStore.js';
 
 function App() {
-    const { isAuthenticated, isLoading } = useAuthState();
-    const { checkAuth } = useAuthActions();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const isLoading = useAuthStore((state) => state.isLoading);
+    const checkAuth = useAuthStore((state) => state.checkAuth);
+
+    console.log('[App] Render - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
 
     // Проверка авторизации при запуске приложения
     useEffect(() => {
+        console.log('[App] useEffect checkAuth triggered');
         checkAuth();
-    }, [checkAuth]);
+    }, []); // Пустой массив зависимостей - запускается только один раз при монтировании
 
     // Показать загрузочный экран пока проверяется авторизация
     if (isLoading) {
