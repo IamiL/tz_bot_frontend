@@ -216,12 +216,19 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
 
     // Обработка клика по ошибке для открытия модалки
     const handleErrorClick = useCallback((errorId) => {
-        const error = invalidErrors.find(err => err.numeric_id === errorId || err.id === errorId);
-        if (error) {
-            setSelectedError(error);
+        // Ищем среди invalid ошибок
+        const invalidError = invalidErrors.find(err => err.numeric_id === errorId || err.id === errorId);
+        if (invalidError) {
+            setSelectedError(invalidError);
             setIsModalOpen(true);
         }
     }, [invalidErrors]);
+
+    // Обработка клика по missing ошибке для открытия модалки
+    const handleMissingErrorClick = useCallback((error) => {
+        setSelectedError(error);
+        setIsModalOpen(true);
+    }, []);
 
     // Закрытие модалки
     const handleCloseModal = useCallback(() => {
@@ -509,7 +516,10 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
 
                 {/* Ошибки документа */}
                 {activeTab === 'document-errors' && (
-                    <DocumentErrors errors={missingErrors || []} />
+                    <DocumentErrors 
+                        errors={missingErrors || []} 
+                        onErrorClick={handleMissingErrorClick}
+                    />
                 )}
 
                 {/* Кнопка скачивания документа */

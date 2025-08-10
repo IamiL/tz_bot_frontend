@@ -119,7 +119,22 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
             }));
             
             setInvalidErrors(processedInvalidErrors);
-            setMissingErrors(response.data.missing_errors);
+            
+            // Обрабатываем missing_errors с полной информацией
+            const processedMissingErrors = (response.data.missing_errors || []).map(error => ({
+                // Сохраняем все поля из нового API формата для missing ошибок
+                id: error.id,
+                id_str: error.id_str,
+                group_id: error.group_id,
+                error_code: error.error_code,
+                analysis: error.analysis,
+                critique: error.critique,
+                verification: error.verification,
+                suggested_fix: error.suggested_fix,
+                rationale: error.rationale
+            }));
+            
+            setMissingErrors(processedMissingErrors);
             setDownloadUrl("https://docs.timuroid.ru/docs/" + response.data.doc_id + ".docx");
 
             setIsScanning(false);
