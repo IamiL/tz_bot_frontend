@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthenticatedRoutes from './components/routing/AuthenticatedRoutes.jsx';
 import UnauthenticatedRoutes from './components/routing/UnauthenticatedRoutes.jsx';
-import useAuthStore from './store/authStore.js';
+import useAuthStore from './store/index.js';
 
 function App() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
