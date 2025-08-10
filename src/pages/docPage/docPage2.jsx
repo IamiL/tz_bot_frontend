@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {Eye} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
+import ErrorModal from "../../components/ErrorModal.jsx";
 
 const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles}) => {
     // Мок данных - массив ошибок
@@ -69,6 +70,8 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
     const [activeTab, setActiveTab] = useState('text-errors');
+    const [selectedError, setSelectedError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const documentRef = useRef(null);
     const errorsRef = useRef(null);
@@ -205,11 +208,26 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
         // Добавляем базовые стили для выделения ошибок
         html = html.replace(
             /<span error-id="(\d+)">(.*?)<\/span>/g,
-            `<span error-id="$1" class="error-text" style="background-color: #ffcdd2; padding: 2px 4px; border-radius: 4px; cursor: default; transition: all 0.3s ease; border: 1px solid #ef9a9a; position: relative;">$2</span>`
+            `<span error-id="$1" class="error-text" style="background-color: #ffcdd2; padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #ef9a9a; position: relative;">$2</span>`
         );
 
         return html;
     }, [document]);
+
+    // Обработка клика по ошибке для открытия модалки
+    const handleErrorClick = useCallback((errorId) => {
+        const error = invalidErrors.find(err => err.numeric_id === errorId || err.id === errorId);
+        if (error) {
+            setSelectedError(error);
+            setIsModalOpen(true);
+        }
+    }, [invalidErrors]);
+
+    // Закрытие модалки
+    const handleCloseModal = useCallback(() => {
+        setIsModalOpen(false);
+        setSelectedError(null);
+    }, []);
 
     // Обновление стилей элементов при ховере
     useEffect(() => {
@@ -269,7 +287,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
         };
     }, [handleDocumentScroll, handleErrorsScroll]);
 
-    // Обработка ховера на элементах с ошибками через делегирование событий
+    // Обработка ховера и кликов на элементах с ошибками через делегирование событий
     useEffect(() => {
         const handleMouseOver = (e) => {
             const errorElement = e.target.closest('[error-id]');
@@ -291,6 +309,16 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
             }
         };
 
+        const handleClick = (e) => {
+            const errorElement = e.target.closest('[error-id]');
+            if (errorElement) {
+                const errorId = errorElement.getAttribute('error-id');
+                if (errorId) {
+                    handleErrorClick(parseInt(errorId));
+                }
+            }
+        };
+
         const documentContainer = documentRef.current;
         if (documentContainer) {
             // Небольшая задержка чтобы дождаться обновления DOM после dangerouslySetInnerHTML
@@ -298,6 +326,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                 if (documentContainer) {
                     documentContainer.addEventListener('mouseover', handleMouseOver);
                     documentContainer.addEventListener('mouseout', handleMouseOut);
+                    documentContainer.addEventListener('click', handleClick);
                 }
             }, 0);
 
@@ -306,10 +335,11 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                 if (documentContainer) {
                     documentContainer.removeEventListener('mouseover', handleMouseOver);
                     documentContainer.removeEventListener('mouseout', handleMouseOut);
+                    documentContainer.removeEventListener('click', handleClick);
                 }
             };
         }
-    }, [document]); // Добавляем document в deps чтобы перезапустить при изменении контента
+    }, [document, handleErrorClick]); // Добавляем document и handleErrorClick в deps
 
     // Проверка мобильного устройства
     useEffect(() => {
@@ -439,19 +469,20 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                         {invalidErrors.map((error) => (
                             <div
                                 key={error.id}
-                                data-error-id={error.id}
-                                onMouseEnter={() => setHoveredErrorId(error.id)}
+                                data-error-id={error.numeric_id || error.id}
+                                onMouseEnter={() => setHoveredErrorId(error.numeric_id || error.id)}
                                 onMouseLeave={() => setHoveredErrorId(null)}
+                                onClick={() => handleErrorClick(error.numeric_id || error.id)}
                                 style={{
                                     padding: '12px',
                                     marginBottom: '8px',
-                                    border: `2px solid ${hoveredErrorId === error.id ? '#f44336' : '#e0e0e0'}`,
+                                    border: `2px solid ${hoveredErrorId === (error.numeric_id || error.id) ? '#f44336' : '#e0e0e0'}`,
                                     borderRadius: '8px',
-                                    cursor: 'default',
-                                    backgroundColor: hoveredErrorId === error.id ? '#ffebee' : '#fafafa',
+                                    cursor: 'pointer',
+                                    backgroundColor: hoveredErrorId === (error.numeric_id || error.id) ? '#ffebee' : '#fafafa',
                                     transition: 'all 0.3s ease',
-                                    transform: hoveredErrorId === error.id ? 'translateX(5px) scale(1.02)' : 'translateX(0) scale(1)',
-                                    boxShadow: hoveredErrorId === error.id
+                                    transform: hoveredErrorId === (error.numeric_id || error.id) ? 'translateX(5px) scale(1.02)' : 'translateX(0) scale(1)',
+                                    boxShadow: hoveredErrorId === (error.numeric_id || error.id)
                                         ? '0 4px 12px rgba(244, 67, 54, 0.3)'
                                         : '0 1px 3px rgba(0, 0, 0, 0.1)'
                                 }}
@@ -461,7 +492,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                                     color: '#d32f2f',
                                     marginBottom: '4px'
                                 }}>
-                                    ошибка {error.error_code} id={error.id}
+                                    ошибка {error.error_code} id={error.numeric_id || error.id}
                                 </div>
                                 <div style={{
                                     fontSize: '14px',
@@ -519,6 +550,13 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                     </div>
                 }
             </div>)}
+            
+            {/* Модалка с детальной информацией об ошибке */}
+            <ErrorModal 
+                isOpen={isModalOpen} 
+                onClose={handleCloseModal} 
+                error={selectedError} 
+            />
         </div>
     );
 };
