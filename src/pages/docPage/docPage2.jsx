@@ -197,29 +197,6 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
         }, 150);
     }, []);
 
-    // Обработка клика по ошибке для перехода к тексту
-    const handleErrorClick = useCallback((errorId) => {
-        if (!documentRef.current) return;
-
-        const errorElement = documentRef.current.querySelector(`[error-id="${errorId}"]`);
-        if (errorElement) {
-            const containerRect = documentRef.current.getBoundingClientRect();
-            const elementRect = errorElement.getBoundingClientRect();
-            const scrollTop = documentRef.current.scrollTop;
-            const targetScrollTop = scrollTop + (elementRect.top - containerRect.top) - 50;
-
-            documentRef.current.scrollTo({
-                top: targetScrollTop,
-                behavior: 'smooth'
-            });
-
-            // Временно подсвечиваем элемент
-            errorElement.style.backgroundColor = '#ffeb3b';
-            setTimeout(() => {
-                errorElement.style.backgroundColor = '';
-            }, 1000);
-        }
-    }, []);
 
     // Создание HTML контента с обработчиками событий
     const createDocumentHTML = useCallback(() => {
@@ -228,7 +205,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
         // Добавляем базовые стили для выделения ошибок
         html = html.replace(
             /<span error-id="(\d+)">(.*?)<\/span>/g,
-            `<span error-id="$1" class="error-text" style="background-color: #ffcdd2; padding: 2px 4px; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; border: 1px solid #ef9a9a; position: relative;">$2</span>`
+            `<span error-id="$1" class="error-text" style="background-color: #ffcdd2; padding: 2px 4px; border-radius: 4px; cursor: default; transition: all 0.3s ease; border: 1px solid #ef9a9a; position: relative;">$2</span>`
         );
 
         return html;
@@ -451,13 +428,12 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                                 data-error-id={error.id}
                                 onMouseEnter={() => setHoveredErrorId(error.id)}
                                 onMouseLeave={() => setHoveredErrorId(null)}
-                                onClick={() => handleErrorClick(error.id)}
                                 style={{
                                     padding: '12px',
                                     marginBottom: '8px',
                                     border: `2px solid ${hoveredErrorId === error.id ? '#f44336' : '#e0e0e0'}`,
                                     borderRadius: '8px',
-                                    cursor: 'pointer',
+                                    cursor: 'default',
                                     backgroundColor: hoveredErrorId === error.id ? '#ffebee' : '#fafafa',
                                     transition: 'all 0.3s ease',
                                     transform: hoveredErrorId === error.id ? 'translateX(5px) scale(1.02)' : 'translateX(0) scale(1)',
