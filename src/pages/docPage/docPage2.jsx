@@ -215,30 +215,37 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
     useEffect(() => {
         if (!documentRef.current) return;
 
-        const errorElements = documentRef.current.querySelectorAll('[error-id]');
-        errorElements.forEach(element => {
-            const errorId = parseInt(element.getAttribute('error-id'));
-            const isHovered = hoveredErrorId === errorId;
+        // Небольшая задержка чтобы дождаться обновления DOM после dangerouslySetInnerHTML
+        const timeout = setTimeout(() => {
+            if (!documentRef.current) return;
+            
+            const errorElements = documentRef.current.querySelectorAll('[error-id]');
+            errorElements.forEach(element => {
+                const errorId = parseInt(element.getAttribute('error-id'));
+                const isHovered = hoveredErrorId === errorId;
 
-            if (isHovered) {
-                // Стили при ховере
-                element.style.backgroundColor = '#f44336';
-                element.style.color = 'white';
-                element.style.boxShadow = '0 2px 8px rgba(244, 67, 54, 0.4)';
-                element.style.transform = 'scale(1.02)';
-                element.style.borderColor = '#d32f2f';
-                element.style.zIndex = '10';
-            } else {
-                // Обычные стили
-                element.style.backgroundColor = '#ffcdd2';
-                element.style.color = 'inherit';
-                element.style.boxShadow = 'none';
-                element.style.transform = 'scale(1)';
-                element.style.borderColor = '#ef9a9a';
-                element.style.zIndex = 'auto';
-            }
-        });
-    }, [hoveredErrorId]);
+                if (isHovered) {
+                    // Стили при ховере
+                    element.style.backgroundColor = '#f44336';
+                    element.style.color = 'white';
+                    element.style.boxShadow = '0 2px 8px rgba(244, 67, 54, 0.4)';
+                    element.style.transform = 'scale(1.02)';
+                    element.style.borderColor = '#d32f2f';
+                    element.style.zIndex = '10';
+                } else {
+                    // Обычные стили
+                    element.style.backgroundColor = '#ffcdd2';
+                    element.style.color = 'inherit';
+                    element.style.boxShadow = 'none';
+                    element.style.transform = 'scale(1)';
+                    element.style.borderColor = '#ef9a9a';
+                    element.style.zIndex = 'auto';
+                }
+            });
+        }, 0);
+
+        return () => clearTimeout(timeout);
+    }, [hoveredErrorId, document]); // Добавляем document в deps чтобы перезапустить при изменении контента
 
     useEffect(() => {
         const documentContainer = documentRef.current;
@@ -284,18 +291,25 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
             }
         };
 
-        if (documentRef.current) {
-            documentRef.current.addEventListener('mouseover', handleMouseOver);
-            documentRef.current.addEventListener('mouseout', handleMouseOut);
+        const documentContainer = documentRef.current;
+        if (documentContainer) {
+            // Небольшая задержка чтобы дождаться обновления DOM после dangerouslySetInnerHTML
+            const timeout = setTimeout(() => {
+                if (documentContainer) {
+                    documentContainer.addEventListener('mouseover', handleMouseOver);
+                    documentContainer.addEventListener('mouseout', handleMouseOut);
+                }
+            }, 0);
 
             return () => {
-                if (documentRef.current) {
-                    documentRef.current.removeEventListener('mouseover', handleMouseOver);
-                    documentRef.current.removeEventListener('mouseout', handleMouseOut);
+                clearTimeout(timeout);
+                if (documentContainer) {
+                    documentContainer.removeEventListener('mouseover', handleMouseOver);
+                    documentContainer.removeEventListener('mouseout', handleMouseOut);
                 }
             };
         }
-    }, []);
+    }, [document]); // Добавляем document в deps чтобы перезапустить при изменении контента
 
     // Проверка мобильного устройства
     useEffect(() => {
