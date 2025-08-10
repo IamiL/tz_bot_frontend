@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вход — Уральская Сталь</title>
+  <!-- Типографика: Inter; при отсутствии — системные шрифты -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================
+       ДИЗАЙН-СИСТЕМА (tokens)
+       Основано на предоставленных токенах v1.1
+       ============================= */
+
+    :root { /* Shared Core */
+      --brand-gradient: linear-gradient(90deg,#ff3c00 0%,#f37130 50%,#f0512c 100%);
+
+      /* Расширение: переходы/радиусы/сетка */
+      --radius-input: 4px;
+      --radius-card: 12px;
+      --radius-cta: 24px;
+      --motion-200: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+      --font-sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    [data-theme="light"] { /* Light Theme */
+      /* Neutrals & Surfaces */
+      --surface-canvas:        #ffffff;
+      --surface-subtle:        #f9f9f9;            /* gray-300 @10% */
+      --surface-elevated:      #ffffff;
+      --border-default:        #bfbfbf;
+      /* Text */
+      --text-primary:          #231f20;            /* gray-900 */
+      --text-secondary:        #727272;            /* gray-700 */
+      --text-inverse:          #ffffff;
+      /* Brand */
+      --brand-primary:         #ff3c00;
+      --brand-hover:           #f37130;
+      --brand-active:          #f0512c;
+      --focus-ring:            0 0 0 3px rgba(255,60,0,.4);
+      /* Shadows */
+      --shadow-elevated: 0 2px 4px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.06);
+    }
+
+    [data-theme="dark"] { /* Dark Theme */
+      /* Neutrals & Surfaces */
+      --surface-canvas:        #121212;            /* ≈ 8% L* */
+      --surface-subtle:        #1e1e1f;            /* gray-900 +8% */
+      --surface-elevated:      #1f1f1f;
+      --border-default:        #2e2e2f;
+      /* Text */
+      --text-primary:          #f5f5f5;            /* near-white */
+      --text-secondary:        #bfbfbf;
+      --text-inverse:          #000000;
+      /* Brand */
+      --brand-primary:         #ff3c00;
+      --brand-hover:           #f37130;
+      --brand-active:          #f0512c;
+      --focus-ring:            0 0 0 3px rgba(255,60,0,.6);
+      /* Shadows */
+      --shadow-elevated: 0 2px 4px rgba(0,0,0,.60), 0 4px 12px rgba(0,0,0,.48);
+    }
+
+    /* =============================
+       БАЗОВЫЕ СТИЛИ
+       ============================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--surface-canvas);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr; /* без футера */
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .brand-badge {
+      inline-size: 28px; block-size: 28px; border-radius: 6px;
+      background: var(--brand-gradient);
+    }
+
+    /* Сегментный тумблер темы — как в предоставленном коде */
+    .segmented { display: inline-grid; grid-auto-flow: column; gap: 6px; background: var(--surface-subtle); border: 1px solid var(--border-default); border-radius: 12px; padding: 4px; }
+    .seg { border: 0; background: transparent; padding: 8px 12px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary); }
+    .seg .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--border-default); display: inline-block; }
+    .seg.is-on { background: var(--surface-elevated); box-shadow: var(--shadow-elevated); }
+    .seg.is-on .dot { background: var(--brand-primary); }
+    .seg:focus-visible { outline: var(--focus-ring); }
+
+    main {
+      display: grid; place-items: center; padding: 24px; gap: 16px;
+    }
+
+    .card {
+      width: 100%; max-width: 420px; background: var(--surface-elevated);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .card-body { padding: 24px; }
+
+    .title { margin: 0 0 8px; font-size: 24px; line-height: 32px; font-weight: 700; }
+    .subtitle { margin: 0 0 16px; color: var(--text-secondary); font-size: 14px; line-height: 20px; }
+
+    form { display: grid; gap: 16px; }
+
+    .field { display: grid; gap: 8px; }
+    .label { font-size: 14px; line-height: 20px; }
+
+    .input {
+      appearance: none; width: 100%;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-input);
+      padding: 12px 12px;
+      color: var(--text-primary);
+      transition: border-color var(--motion-200), background var(--motion-200);
+    }
+    .input::placeholder { color: var(--text-secondary); }
+    .input:focus { border-color: var(--brand-primary); }
+    .input:focus-visible { outline: var(--focus-ring); }
+
+    .password-wrap { display: grid; gap: 8px; }
+    .input-affix { position: relative; }
+    .input.has-affix { padding-right: 44px; }
+    .toggle-pass {
+      position: absolute; inset-inline-end: 8px; inset-block-start: 50%; transform: translateY(-50%);
+      border: none; background: transparent; color: var(--text-secondary); cursor: pointer; padding: 6px; border-radius: 6px;
+    }
+    .toggle-pass:focus-visible { outline: var(--focus-ring); }
+
+    .row { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+    .checkbox {
+      appearance: none; /* кастомный рендер чекбокса */
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      border: 1px solid var(--border-default);
+      background: var(--surface-subtle); /* светлый в light, тёмный в dark */
+      display: inline-grid; place-items: center;
+      cursor: pointer;
+      transition: background var(--motion-200), border-color var(--motion-200), box-shadow var(--motion-200);
+    }
+    .checkbox:hover { border-color: var(--brand-primary); }
+    .checkbox:focus-visible { outline: var(--focus-ring); }
+    .checkbox:active { transform: translateY(0.5px); }
+    .checkbox:checked {
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
+      /* белая галочка поверх бренда */
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 14px 14px;
+    }
+    .checkbox:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; border: none; cursor: pointer; text-align: center; text-decoration: none;
+      background: var(--brand-primary); color: var(--text-inverse);
+      border-radius: var(--radius-cta); padding: 12px 16px; font-weight: 600;
+      transition: background var(--motion-200), transform var(--motion-200);
+    }
+    .btn-primary:hover { background: var(--brand-hover); }
+    .btn-primary:active { background: var(--brand-active); transform: translateY(1px); }
+    .btn-primary:focus-visible { outline: var(--focus-ring); }
+
+    .error { display:none; background: rgba(224,36,36,.08); color: #b3261e; border: 1px solid rgba(224,36,36,.35);
+      border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+
+    @media (max-width: 480px) {
+      header { padding: 12px 16px; }
+      .card-body { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand" aria-label="Уральская Сталь">
+        <span class="brand-badge" aria-hidden="true"></span>
+        <span>Уральская Сталь</span>
+      </div>
+      <div class="segmented" role="tablist" aria-label="Выбор темы">
+        <button id="segLight" class="seg" role="tab" aria-selected="false"><span class="dot"></span> Светлая</button>
+        <button id="segDark" class="seg" role="tab" aria-selected="false"><span class="dot"></span> Тёмная</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" role="region" aria-labelledby="loginTitle">
+        <div class="card-body">
+          <h1 class="title" id="loginTitle">Вход в аккаунт</h1>
+          <p class="subtitle">Введите логин и пароль, чтобы продолжить</p>
+
+          <div id="errorBox" class="error" role="alert">Неверный логин или пароль</div>
+
+          <form id="loginForm" novalidate>
+            <div class="field">
+              <label class="label" for="login">Логин</label>
+              <input class="input" id="login" name="login" type="text" inputmode="email"
+                     autocomplete="username" placeholder="name@domain.ru" required />
+            </div>
+
+            <div class="field password-wrap">
+              <label class="label" for="password">Пароль</label>
+              <div class="input-affix">
+                <input class="input has-affix" id="password" name="password" type="password" autocomplete="current-password" required />
+                <button class="toggle-pass" type="button" aria-controls="password" aria-label="Показать пароль" title="Показать/скрыть пароль">
+                  <!-- Иконка-глаз, стиль — currentColor -->
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="row">
+              <label style="display:inline-flex;align-items:center;gap:8px;">
+                <input class="checkbox" type="checkbox" name="remember" />
+                Запомнить меня
+              </label>
+            </div>
+
+            <button class="btn-primary" type="submit">Войти</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Все инициализации после готовности DOM, чтобы избежать TDZ/ReferenceError
+    document.addEventListener('DOMContentLoaded', () => {
+      const segLight = document.getElementById('segLight');
+      const segDark  = document.getElementById('segDark');
+      const loginForm = document.getElementById('loginForm');
+      const errorBox = document.getElementById('errorBox');
+      const passToggle = document.querySelector('.toggle-pass');
+      const passInput = document.getElementById('password');
+
+      function setTheme(mode) {
+        const el = document.documentElement;
+        el.setAttribute('data-theme', mode);
+        try { localStorage.setItem('theme', mode); } catch {}
+        syncSegUi(mode);
+      }
+
+      function syncSegUi(mode) {
+        const isDark = mode === 'dark';
+        segLight.classList.toggle('is-on', !isDark);
+        segDark.classList.toggle('is-on', isDark);
+        segLight.setAttribute('aria-selected', String(!isDark));
+        segDark.setAttribute('aria-selected', String(isDark));
+      }
+
+      // Инициализация темы (после того, как кнопки уже есть)
+      const saved = (() => { try { return localStorage.getItem('theme'); } catch { return null; } })();
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = saved || (prefersDark ? 'dark' : 'light');
+      setTheme(initial);
+
+      // Обработчики переключателей темы
+      segLight.addEventListener('click', () => setTheme('light'));
+      segDark.addEventListener('click',  () => setTheme('dark'));
+
+      // Показать/скрыть пароль (иконка по центру инпута)
+      passToggle.addEventListener('click', function () {
+        const isPass = passInput.type === 'password';
+        passInput.type = isPass ? 'text' : 'password';
+        this.setAttribute('aria-label', isPass ? 'Скрыть пароль' : 'Показать пароль');
+      });
+
+      // Клиентская валидация
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const login = document.getElementById('login');
+        if (!login.value.trim() || !passInput.value.trim()) {
+          errorBox.textContent = 'Заполните логин и пароль';
+          errorBox.style.display = 'block';
+          return;
+        }
+        errorBox.style.display = 'none';
+        alert('Форма готова к интеграции. Замените alert() на реальный запрос.');
+      });
+
+      // ==========================
+      // Мини-тесты (не меняют UI)
+      // ==========================
+      (function devTests(){
+        const prev = document.documentElement.getAttribute('data-theme');
+        try {
+          // Тест темы
+          setTheme('light');
+          console.assert(document.documentElement.getAttribute('data-theme') === 'light', 'Тема должна стать light');
+          console.assert(segLight.classList.contains('is-on') && !segDark.classList.contains('is-on'), 'Сегменты: активен light');
+
+          setTheme('dark');
+          console.assert(document.documentElement.getAttribute('data-theme') === 'dark', 'Тема должна стать dark');
+          console.assert(segDark.classList.contains('is-on') && !segLight.classList.contains('is-on'), 'Сегменты: активен dark');
+
+          // Тест чекбокса: клик переключает состояние
+          const remember = document.querySelector('input[name="remember"]');
+          const was = remember.checked;
+          remember.click();
+          console.assert(remember.checked !== was, 'Клик по чекбоксу должен менять состояние');
+          // вернуть состояние
+          remember.click();
+        } catch (e) {
+          console.warn('DevTests: ошибка проверки', e);
+        } finally {
+          setTheme(prev || initial);
+        }
+      })();
+    });
+  </script>
+</body>
+</html>
