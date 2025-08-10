@@ -90,7 +90,7 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post('/api/v1/tz', formData, {
+            const response = await axios.post('/api/tz', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
