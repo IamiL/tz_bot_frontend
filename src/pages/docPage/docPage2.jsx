@@ -203,6 +203,9 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
 
     // Создание HTML контента с обработчиками событий
     const createDocumentHTML = useCallback(() => {
+        if (!document || typeof document !== 'string') {
+            return '';
+        }
         let html = document;
 
         // Добавляем базовые стили для выделения ошибок

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import "../../App.css"
 import {AlertCircle, Upload, Check, X} from "lucide-react";
 import axios from "axios";
+import {GetHostname} from "../../hostname.js";
 
 function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingErrors, setDownloadUrl}) {
     const [error, setError] = useState('');
@@ -90,7 +91,7 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post('/api/tz', formData, {
+            const response = await axios.post(`${GetHostname}/api/tz`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -149,6 +150,7 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
     };
 
     return (
+        <div className="upload-section-wrapper">
         <div className="upload-section">
             <div
                 className={`upload-container ${isDragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
@@ -228,6 +230,7 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
                     'Просканировать техническое задание'
                 )}
             </button>
+        </div>
         </div>
     );
 }
