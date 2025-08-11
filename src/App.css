@@ -8,7 +8,9 @@
 body{
     margin:0;
     box-sizing: border-box;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji','Segoe UI Emoji', 'Segoe UI Symbol';
 }
+
 :root {
     /* Базовая палитра */
     --clr-black: #000000;
@@ -388,7 +390,7 @@ body{
     gap: var(--space-6);
     width: 100%;
     max-width: 1600px;
-    height: calc(100vh - 48px);
+    height: 100vh;
     opacity: 0;
     animation: fadeIn var(--motion-duration-slow) var(--motion-ease-decelerate) forwards;
 }

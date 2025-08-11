@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {Eye} from "lucide-react";
+import {Eye, BarChart3} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
 import ErrorModal from "../../components/ErrorModal.jsx";
+import ErrorStatisticsModal from "../../components/ErrorStatisticsModal.jsx";
 
 const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles}) => {
     // Мок данных - массив ошибок
@@ -72,6 +73,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
     const [activeTab, setActiveTab] = useState('text-errors');
     const [selectedError, setSelectedError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isStatisticsModalOpen, setIsStatisticsModalOpen] = useState(false);
 
     const documentRef = useRef(null);
     const errorsRef = useRef(null);
@@ -468,6 +470,40 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                     >
                         Ошибки документа
                     </button>
+                    
+                    {/* Кнопка статистики */}
+                    <button
+                        onClick={() => setIsStatisticsModalOpen(true)}
+                        style={{
+                            padding: '12px 16px',
+                            border: '2px solid #4caf50',
+                            borderRadius: '8px',
+                            backgroundColor: '#ffffff',
+                            color: '#4caf50',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            transition: 'all 0.3s ease',
+                            fontSize: '14px',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = '#4caf50';
+                            e.target.style.color = 'white';
+                            e.target.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = '#ffffff';
+                            e.target.style.color = '#4caf50';
+                            e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                        }}
+                    >
+                        <BarChart3 size={16} />
+                        Статистика ошибок
+                    </button>
                 </div>
 
                 {/* Ошибки в тексте */}
@@ -537,7 +573,8 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                                 backgroundColor: '#ff9800',
                                 color: 'white',
                                 textDecoration: 'none',
-                                borderRadius: '8px',
+                                borderBottomLeftRadius:'8px',
+                                borderBottomRightRadius:'8px',
                                 textAlign: 'center',
                                 fontWeight: 'bold',
                                 fontSize: '14px',
@@ -569,6 +606,14 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                 isOpen={isModalOpen} 
                 onClose={handleCloseModal} 
                 error={selectedError} 
+            />
+            
+            {/* Модалка со статистикой */}
+            <ErrorStatisticsModal
+                isOpen={isStatisticsModalOpen}
+                onClose={() => setIsStatisticsModalOpen(false)}
+                invalidErrors={invalidErrors}
+                missingErrors={missingErrors}
             />
         </div>
     );
