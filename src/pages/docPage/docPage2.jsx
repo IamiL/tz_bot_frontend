@@ -3,6 +3,7 @@ import {Eye, BarChart3} from "lucide-react";
 import DocumentErrors from "../../components/DocumentErrors.jsx";
 import ErrorModal from "../../components/ErrorModal.jsx";
 import ErrorStatisticsModal from "../../components/ErrorStatisticsModal.jsx";
+import styles from "./docPage.module.css";
 
 const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles}) => {
     // Мок данных - массив ошибок
@@ -435,74 +436,66 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                     flexDirection: 'column',
                     gap: '8px',
                     marginBottom: '16px'
-                }}>
+                }}>{/* Кнопка статистики */}
                     <button
+                        className={styles.btn}
+                        onClick={() => setIsStatisticsModalOpen(true)}
+                        // style={{
+                        //     padding: '12px 16px',
+                        //     border: '2px solid #4caf50',
+                        //     borderRadius: '8px',
+                        //     backgroundColor: '#ffffff',
+                        //     color: '#4caf50',
+                        //     cursor: 'pointer',
+                        //     fontWeight: 'bold',
+                        //     transition: 'all 0.3s ease',
+                        //     fontSize: '14px',
+                        //     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                        //     display: 'flex',
+                        //     alignItems: 'center',
+                        //     justifyContent: 'center',
+                        //     gap: '8px'
+                        // }}
+                        // onMouseEnter={(e) => {
+                        //     e.target.style.backgroundColor = '#4caf50';
+                        //     e.target.style.color = 'white';
+                        //     e.target.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+                        // }}
+                        // onMouseLeave={(e) => {
+                        //     e.target.style.backgroundColor = '#ffffff';
+                        //     e.target.style.color = '#4caf50';
+                        //     e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                        // }}
+                    >
+                        <BarChart3 size={16} />
+                        Статистика ошибок
+                    </button>
+                    <button
+                        className={styles.btn}
                         onClick={() => setActiveTab('text-errors')}
-                        style={{
-                            padding: '12px 16px',
-                            border: `2px solid ${activeTab === 'text-errors' ? '#d32f2f' : '#e0e0e0'}`,
-                            borderRadius: '8px',
-                            backgroundColor: activeTab === 'text-errors' ? '#d32f2f' : '#ffffff',
-                            color: activeTab === 'text-errors' ? 'white' : '#666',
-                            cursor: 'pointer',
-                            fontWeight: activeTab === 'text-errors' ? 'bold' : 'normal',
-                            transition: 'all 0.3s ease',
-                            fontSize: '14px',
-                            boxShadow: activeTab === 'text-errors' ? '0 2px 4px rgba(211, 47, 47, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
-                        }}
+                        // style={{
+                        //     padding: '12px 16px',
+                        //     border: `2px solid ${activeTab === 'text-errors' ? '#d32f2f' : '#e0e0e0'}`,
+                        //     borderRadius: '8px',
+                        //     backgroundColor: activeTab === 'text-errors' ? '#d32f2f' : '#ffffff',
+                        //     color: activeTab === 'text-errors' ? 'white' : '#666',
+                        //     cursor: 'pointer',
+                        //     fontWeight: activeTab === 'text-errors' ? 'bold' : 'normal',
+                        //     transition: 'all 0.3s ease',
+                        //     fontSize: '14px',
+                        //     boxShadow: activeTab === 'text-errors' ? '0 2px 4px rgba(211, 47, 47, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        // }}
                     >
                         Ошибки в тексте
                     </button>
                     <button
+                        className={styles.btn}
                         onClick={() => setActiveTab('document-errors')}
-                        style={{
-                            padding: '12px 16px',
-                            border: `2px solid ${activeTab === 'document-errors' ? '#d32f2f' : '#e0e0e0'}`,
-                            borderRadius: '8px',
-                            backgroundColor: activeTab === 'document-errors' ? '#d32f2f' : '#ffffff',
-                            color: activeTab === 'document-errors' ? 'white' : '#666',
-                            cursor: 'pointer',
-                            fontWeight: activeTab === 'document-errors' ? 'bold' : 'normal',
-                            transition: 'all 0.3s ease',
-                            fontSize: '14px',
-                            boxShadow: activeTab === 'document-errors' ? '0 2px 4px rgba(211, 47, 47, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'
-                        }}
+                        // style={{
+                        //
+                        // }}
                     >
                         Ошибки документа
-                    </button>
-                    
-                    {/* Кнопка статистики */}
-                    <button
-                        onClick={() => setIsStatisticsModalOpen(true)}
-                        style={{
-                            padding: '12px 16px',
-                            border: '2px solid #4caf50',
-                            borderRadius: '8px',
-                            backgroundColor: '#ffffff',
-                            color: '#4caf50',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            transition: 'all 0.3s ease',
-                            fontSize: '14px',
-                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.target.style.backgroundColor = '#4caf50';
-                            e.target.style.color = 'white';
-                            e.target.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.target.style.backgroundColor = '#ffffff';
-                            e.target.style.color = '#4caf50';
-                            e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-                        }}
-                    >
-                        <BarChart3 size={16} />
-                        Статистика ошибок
                     </button>
                 </div>
 
@@ -566,34 +559,17 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                         <a
                             href={downloadUrl}
                             download
-                            style={{
-                                display: 'block',
-                                width: '100%',
-                                padding: '12px 16px',
-                                backgroundColor: '#ff9800',
-                                color: 'white',
-                                textDecoration: 'none',
-                                borderBottomLeftRadius:'8px',
-                                borderBottomRightRadius:'8px',
-                                textAlign: 'center',
-                                fontWeight: 'bold',
-                                fontSize: '14px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                boxShadow: '0 2px 4px rgba(255, 152, 0, 0.3)',
-                                boxSizing: 'border-box'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.backgroundColor = '#f57c00';
-                                e.target.style.transform = 'translateY(-1px)';
-                                e.target.style.boxShadow = '0 4px 8px rgba(255, 152, 0, 0.4)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.backgroundColor = '#ff9800';
-                                e.target.style.transform = 'translateY(0)';
-                                e.target.style.boxShadow = '0 2px 4px rgba(255, 152, 0, 0.3)';
-                            }}
+                            className={styles.downloadDocBtn}
+                            // onMouseEnter={(e) => {
+                            //     e.target.style.backgroundColor = '#f57c00';
+                            //     e.target.style.transform = 'translateY(-1px)';
+                            //     e.target.style.boxShadow = '0 4px 8px rgba(255, 152, 0, 0.4)';
+                            // }}
+                            // onMouseLeave={(e) => {
+                            //     e.target.style.backgroundColor = '#ff9800';
+                            //     e.target.style.transform = 'translateY(0)';
+                            //     e.target.style.boxShadow = '0 2px 4px rgba(255, 152, 0, 0.3)';
+                            // }}
                         >
                             Скачать документ
                         </a>
