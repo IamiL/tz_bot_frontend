@@ -471,7 +471,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                         Статистика ошибок
                     </button>
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${activeTab === 'text-errors' ? styles.btnSelect : ''}`}
                         onClick={() => setActiveTab('text-errors')}
                         // style={{
                         //     padding: '12px 16px',
@@ -489,7 +489,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                         Ошибки в тексте
                     </button>
                     <button
-                        className={styles.btn}
+                        className={`${styles.btn} ${activeTab === 'document-errors' ? styles.btnSelect : ''}`}
                         onClick={() => setActiveTab('document-errors')}
                         // style={{
                         //
