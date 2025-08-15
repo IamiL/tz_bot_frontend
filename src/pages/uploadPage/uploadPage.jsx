@@ -95,6 +95,7 @@ function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingEr
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                withCredentials: true,
             });
 
             setDocText(response.data.text);

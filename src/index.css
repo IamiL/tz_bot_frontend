@@ -100,6 +100,7 @@
     --text-inverse: #ffffff;
     --shadow-1: var(--elev-1l);
     --shadow-2: var(--elev-2l);
+    --focus-ring: 0 0 0 3px rgba(255,60,0,.35);
 }
 
 [data-theme="dark"] {
@@ -112,6 +113,7 @@
     --text-inverse: #000000;
     --shadow-1: var(--elev-1d);
     --shadow-2: var(--elev-2d);
+    --focus-ring: 0 0 0 3px rgba(255,60,0,.55);
 }
 
 .app {
