@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate } from 'react-router-dom';
 import AuthenticatedRoutes from './components/routing/AuthenticatedRoutes.jsx';
 import UnauthenticatedRoutes from './components/routing/UnauthenticatedRoutes.jsx';
+import ConfirmationPage from './pages/confirmationPage/ConfirmationPage.jsx';
 import useAuthStore from './store/index.js';
 
 function App() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const isConfirmed = useAuthStore((state) => state.isConfirmed);
     const isLoading = useAuthStore((state) => state.isLoading);
     const checkAuth = useAuthStore((state) => state.checkAuth);
 
-    console.log('[App] Render - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+    console.log('[App] Render - isAuthenticated:', isAuthenticated, 'isConfirmed:', isConfirmed, 'isLoading:', isLoading);
 
     // Проверка авторизации при запуске приложения
     useEffect(() => {
@@ -37,7 +39,11 @@ function App() {
         <Router>
             <div className="app">
                 {isAuthenticated ? (
-                    <AuthenticatedRoutes />
+                    isConfirmed ? (
+                        <AuthenticatedRoutes />
+                    ) : (
+                        <ConfirmationPage />
+                    )
                 ) : (
                     <UnauthenticatedRoutes />
                 )}

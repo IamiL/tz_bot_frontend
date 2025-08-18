@@ -5,7 +5,7 @@ import ErrorModal from "../../components/ErrorModal.jsx";
 import ErrorStatisticsModal from "../../components/ErrorStatisticsModal.jsx";
 import styles from "./docPage.module.css";
 
-const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles}) => {
+const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyles, versionId}) => {
     // Мок данных - массив ошибок
     // const mockErrors = Array.from({ length: 50 }, (_, i) => ({
     //     id: i + 1,
@@ -582,6 +582,7 @@ const DocPage2 = ({document, invalidErrors, missingErrors, downloadUrl, cssStyle
                 isOpen={isModalOpen} 
                 onClose={handleCloseModal} 
                 error={selectedError} 
+                versionId={versionId}
             />
             
             {/* Модалка со статистикой */}
