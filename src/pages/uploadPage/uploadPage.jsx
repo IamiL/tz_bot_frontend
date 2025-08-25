@@ -4,7 +4,7 @@ import {AlertCircle, Upload, Check, X} from "lucide-react";
 import axios from "axios";
 import {GetHostname} from "../../hostname.js";
 
-function UploadPage({setScanComplete, setDocText, setInvalidErrors, setMissingErrors, setDownloadUrl}) {
+function UploadPage({setScanComplete,setCssStyles, setDocText, setInvalidErrors, setMissingErrors, setDownloadUrl}) {
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
