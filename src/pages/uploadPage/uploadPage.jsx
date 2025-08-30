@@ -89,7 +89,7 @@ function UploadPage() {
 
     // Сканирование документа
     const handleScan = async () => {
-        // setIsScanning(true);
+        setIsScanning(true);
         // await new Promise(resolve => setTimeout(resolve, 2000));
 
         try {
@@ -110,7 +110,7 @@ function UploadPage() {
                     name: response.data.name,
                     created_at: response.data.created_at
                 });
-
+                setIsScanning(false);
                 navigate(`/technical-specifications/${response.data.id}`);
             }
 
