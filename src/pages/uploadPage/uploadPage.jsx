@@ -3,12 +3,17 @@ import "../../App.css"
 import {AlertCircle, Upload, Check, X} from "lucide-react";
 import axios from "axios";
 import {GetHostname} from "../../hostname.js";
+import {useBoundStore} from "../../store/index.js";
+import {useNavigate} from "react-router-dom";
 
-function UploadPage({setScanComplete,setCssStyles, setDocText, setInvalidErrors, setMissingErrors, setDownloadUrl}) {
+function UploadPage() {
+    const navigate = useNavigate();
     const [error, setError] = useState('');
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
     const [isScanning, setIsScanning] = useState(false);
+    
+    const addTechSpec = useBoundStore((state) => state.addTechSpec);
 
     // Обработчики drag and drop
     const handleDragEnter = (e) => {
@@ -84,7 +89,7 @@ function UploadPage({setScanComplete,setCssStyles, setDocText, setInvalidErrors,
 
     // Сканирование документа
     const handleScan = async () => {
-        setIsScanning(true);
+        // setIsScanning(true);
         // await new Promise(resolve => setTimeout(resolve, 2000));
 
         try {
@@ -98,54 +103,65 @@ function UploadPage({setScanComplete,setCssStyles, setDocText, setInvalidErrors,
                 withCredentials: true,
             });
 
-            setDocText(response.data.text);
-            
-            // Обрабатываем invalid_errors с полной информацией
-            const processedInvalidErrors = (response.data.invalid_errors || []).map(error => ({
-                // Сохраняем все поля из нового API формата
-                numeric_id: error.numeric_id,
-                id: error.id,
-                group_id: error.group_id,
-                error_code: error.error_code,
-                quote: error.quote,
-                analysis: error.analysis,
-                critique: error.critique,
-                verification: error.verification,
-                suggested_fix: error.suggested_fix,
-                rationale: error.rationale,
-                original_quote: error.original_quote,
-                quote_lines: error.quote_lines,
-                until_the_end_of_sentence: error.until_the_end_of_sentence,
-                start_line_number: error.start_line_number,
-                end_line_number: error.end_line_number
-            }));
-            
-            setInvalidErrors(processedInvalidErrors);
-            
-            // Обрабатываем missing_errors с полной информацией
-            const processedMissingErrors = (response.data.missing_errors || []).map(error => ({
-                // Сохраняем все поля из нового API формата для missing ошибок
-                id: error.id,
-                id_str: error.id_str,
-                group_id: error.group_id,
-                error_code: error.error_code,
-                analysis: error.analysis,
-                critique: error.critique,
-                verification: error.verification,
-                suggested_fix: error.suggested_fix,
-                rationale: error.rationale
-            }));
-            
-            setMissingErrors(processedMissingErrors);
-            setDownloadUrl("https://docs.timuroid.ru/docs/" + response.data.doc_id + ".docx");
+            // Добавляем новое ТЗ в store со статусом "in_progress"
+            if (response.data && response.data.id) {
+                addTechSpec({
+                    id: response.data.id,
+                    name: response.data.name,
+                    created_at: response.data.created_at
+                });
 
-            setIsScanning(false);
-            setScanComplete(true);
+                navigate(`/technical-specifications/${response.data.id}`);
+            }
+
+            // setDocText(response.data.text);
+            //
+            // // Обрабатываем invalid_errors с полной информацией
+            // const processedInvalidErrors = (response.data.invalid_errors || []).map(error => ({
+            //     // Сохраняем все поля из нового API формата
+            //     numeric_id: error.numeric_id,
+            //     id: error.id,
+            //     group_id: error.group_id,
+            //     error_code: error.error_code,
+            //     quote: error.quote,
+            //     analysis: error.analysis,
+            //     critique: error.critique,
+            //     verification: error.verification,
+            //     suggested_fix: error.suggested_fix,
+            //     rationale: error.rationale,
+            //     original_quote: error.original_quote,
+            //     quote_lines: error.quote_lines,
+            //     until_the_end_of_sentence: error.until_the_end_of_sentence,
+            //     start_line_number: error.start_line_number,
+            //     end_line_number: error.end_line_number
+            // }));
+            //
+            // setInvalidErrors(processedInvalidErrors);
+            //
+            // // Обрабатываем missing_errors с полной информацией
+            // const processedMissingErrors = (response.data.missing_errors || []).map(error => ({
+            //     // Сохраняем все поля из нового API формата для missing ошибок
+            //     id: error.id,
+            //     id_str: error.id_str,
+            //     group_id: error.group_id,
+            //     error_code: error.error_code,
+            //     analysis: error.analysis,
+            //     critique: error.critique,
+            //     verification: error.verification,
+            //     suggested_fix: error.suggested_fix,
+            //     rationale: error.rationale
+            // }));
+            //
+            // setMissingErrors(processedMissingErrors);
+            // setDownloadUrl("https://docs.timuroid.ru/docs/" + response.data.doc_id + ".docx");
+            //
+            // setIsScanning(false);
+            // setScanComplete(true);
 
             return response.data;
         } catch (error) {
             console.error('Ошибка при загрузке файла:', error);
-            setIsScanning(false);
+            // setIsScanning(false);
             throw error;
         }
     };
