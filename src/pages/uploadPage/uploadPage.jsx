@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import "../../App.css"
-import {AlertCircle, Upload, Check, X} from "lucide-react";
+import {AlertCircle, Upload, Check, X, Clock} from "lucide-react";
 import axios from "axios";
 import {GetHostname} from "../../hostname.js";
 import {useBoundStore} from "../../store/index.js";
@@ -12,8 +12,55 @@ function UploadPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState(null);
     const [isScanning, setIsScanning] = useState(false);
+    const [inspectionLimit, setInspectionLimit] = useState({
+        status: 'loading',
+        inspections_left: null,
+        time_until_reset: null,
+        error_type: null
+    });
     
     const addTechSpec = useBoundStore((state) => state.addTechSpec);
+
+    const formatTimeUntilReset = (timeString) => {
+        if (!timeString) return '';
+        
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const totalMinutes = hours * 60 + minutes;
+        
+        if (totalMinutes >= 60) {
+            const hoursLeft = Math.floor(totalMinutes / 60);
+            return `${hoursLeft} ${hoursLeft === 1 ? 'час' : hoursLeft < 5 ? 'часа' : 'часов'}`;
+        } else {
+            return `${totalMinutes} ${totalMinutes === 1 ? 'минуту' : totalMinutes < 5 ? 'минуты' : 'минут'}`;
+        }
+    };
+
+    useEffect(() => {
+        const checkInspectionLimit = async () => {
+            try {
+                const response = await axios.get(`${GetHostname()}/api/users/inspection-limit`, {
+                    withCredentials: true
+                });
+                
+                setInspectionLimit({
+                    status: response.data.status,
+                    inspections_left: response.data.inspections_left || null,
+                    time_until_reset: response.data.time_until_reset || null,
+                    error_type: null
+                });
+            } catch (error) {
+                console.error('Ошибка при проверке лимита:', error);
+                setInspectionLimit({
+                    status: 'error',
+                    inspections_left: null,
+                    time_until_reset: null,
+                    error_type: error.response?.status === 500 ? 'server' : 'unknown'
+                });
+            }
+        };
+
+        checkInspectionLimit();
+    }, []);
 
     // Обработчики drag and drop
     const handleDragEnter = (e) => {
@@ -166,6 +213,92 @@ function UploadPage() {
         }
     };
 
+    if (inspectionLimit.status === 'loading') {
+        return (
+            <div className="upload-section-wrapper">
+                <div className="upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+                    <span className="loader" style={{ width: '48px', height: '48px', marginBottom: '16px' }} aria-hidden="true"></span>
+                    <p style={{ color: '#666', fontSize: '16px' }}>Проверка лимита проверок...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (inspectionLimit.status === 'limit_exhausted') {
+        return (
+            <div className="upload-section-wrapper">
+                <div className="upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+                    <div style={{ 
+                        background: 'var(--surface-elevated)', 
+                        border: '1px solid var(--border-default)', 
+                        borderRadius: 'var(--radius-lg)', 
+                        padding: 'var(--space-8)', 
+                        textAlign: 'center',
+                        maxWidth: '400px',
+                        boxShadow: 'var(--elevation-2)'
+                    }}>
+                        <Clock size={48} style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }} />
+                        <h2 style={{ 
+                            color: 'var(--text-primary)', 
+                            marginBottom: 'var(--space-3)', 
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            margin: '0 0 var(--space-3) 0'
+                        }}>
+                            Лимит проверок исчерпан
+                        </h2>
+                        <p style={{ 
+                            color: 'var(--text-secondary)', 
+                            marginBottom: 'var(--space-4)',
+                            fontSize: '14px',
+                            lineHeight: '1.5',
+                            margin: '0 0 var(--space-4) 0'
+                        }}>
+                            На сегодня вы исчерпали лимит проверок документов.
+                        </p>
+                        {inspectionLimit.time_until_reset && (
+                            <p className="upload-hint" style={{ margin: 0 }}>
+                                Новые проверки будут доступны через {formatTimeUntilReset(inspectionLimit.time_until_reset)}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (inspectionLimit.status === 'error') {
+        return (
+            <div className="upload-section-wrapper">
+                <div className="upload-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+                    <div style={{ 
+                        background: 'var(--surface-elevated)', 
+                        border: '1px solid var(--border-default)', 
+                        borderRadius: 'var(--radius-lg)', 
+                        padding: 'var(--space-8)', 
+                        textAlign: 'center',
+                        maxWidth: '400px',
+                        boxShadow: 'var(--elevation-2)'
+                    }}>
+                        <AlertCircle size={48} style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }} />
+                        <h2 style={{ 
+                            color: 'var(--text-primary)', 
+                            marginBottom: 'var(--space-3)', 
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            margin: '0 0 var(--space-3) 0'
+                        }}>
+                            Сервис временно недоступен
+                        </h2>
+                        <p className="upload-hint" style={{ margin: 0 }}>
+                            Попробуйте обновить страницу или повторить попытку позже.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="upload-section-wrapper">
         <div className="upload-section">
@@ -247,6 +380,12 @@ function UploadPage() {
                     'Просканировать техническое задание'
                 )}
             </button>
+
+            {inspectionLimit.status === 'success' && inspectionLimit.inspections_left && (
+                <p className="upload-hint" style={{ marginTop: 'var(--space-4)', textAlign: 'center' }}>
+                    У вас ещё осталось {inspectionLimit.inspections_left} проверок на сегодня
+                </p>
+            )}
         </div>
         </div>
     );
